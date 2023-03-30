@@ -1,6 +1,71 @@
 
+## Create a Managed Identity
+az identity create --name "${AKSname}-msi" --resource-group $RGname
+az identity list --query "[].{Name:name, Id:id, Location:location}" -o table
 
 ## Delegate Network Contributor role to the Virtual Network and Route Table
 VNID=$(az network vnet show --resource-group $RGvnet --name $VNET_NAME --query "id" -o tsv)
 az role assignment create --assignee-object-id $ManIdtobjID --scope $VNID --role 'Network Contributor'
 
+RTID=$(az network route-table show --resource-group $RGvnet -n $ROUTE_TABLE_NAME --query id -o tsv)
+az role assignment create --assignee-object-id $ManIdtobjID --scope $RTID --role "Network Contributor"
+
+ManIdtobjID=<ManagedIdentity-object-ID>
+ManIdtrscID=<ManagedIdentity-Resource-ID>
+
+## Create Azure AD Group - This group is needed as admin group for the cluster to grant cluster admin permissions. You can use an existing Azure AD group, or create a new one. Record the object ID of your Azure AD group.
+### Create an Azure AD group
+az ad group create --display-name "${AKSname}-adms" --mail-nickname "${AKSname}-adms"
+
+### List existing groups in the directory
+az ad group list --filter "displayname eq "${AKSname}-adms"" -o table
+
+AADgroupID="AAD Group AKS Admins object ID"
+
+## Delegate Network Contributor role to the Virtual Network and Route Table
+VNID=$(az network vnet show --resource-group $RGvnet --name $VNET_NAME --query "id" -o tsv)
+az role assignment create --assignee-object-id $ManIdtobjID --scope $VNID --role 'Network Contributor'
+
+RTID=$(az network route-table show --resource-group $RGvnet -n $ROUTE_TABLE_NAME --query id -o tsv)
+az role assignment create --assignee-object-id $ManIdtobjID --scope $RTID --role "Network Contributor"
+
+## Delegate acrpull role to the Azure Container Registry
+ACRuri=$(az acr show --name $AttachAcr01 --query "id" -o tsv)
+az role assignment create --assignee-object-id $ManIdtobjID --scope $ACRuri --role 'acrpull'
+
+# Deploy AKS Cluster
+## Deploy AKS with outbound type of UDR to the existing network and a TEMPORARY single System nodepool
+
+az aks create --name $AKSname \
+              --resource-group $RGname \
+              --aad-admin-group-object-ids $AADgroupID \
+              --aad-tenant-id $AADtenatId \ 
+              --enable-managed-identity \             
+              --assign-identity $ManIdtrscID \ # Specify an existing user assigned identity for control plane's usage in order to manage cluster resource group
+              --attach-acr $AttachAcr01 \
+              --dns-name-prefix $DNSname \ 
+              --dns-service-ip 172.88.0.10 \
+              --docker-bridge-address 172.99.0.1/16 \
+              --enable-aad \
+              --enable-addons monitoring \
+              --enable-cluster-autoscaler \                            
+              --enable-azure-rbac \ # Enable Azure RBAC to control authorization checks on cluster.
+              --generate-ssh-keys \
+              --kubernetes-version $AKSversion \
+              --load-balancer-sku standard \
+              --location $LOC \
+              --max-count $NodeMaxCount01 \
+              --max-pods $MaxPODs01 \
+              --min-count $NodeMinCount01 \
+              --network-plugin 'azure' \
+              --network-policy 'azure' \
+              --node-count $NodeCount01 \
+              --node-osdisk-size $NodeOsDiskSize01 \
+              --node-vm-size $NodeVmSize01 \
+              --nodepool-name systemNodePool  \
+              --outbound-type userDefinedRouting \        
+              --service-cidr 172.88.0.0/16 \
+              --uptime-sla \
+              --vm-set-type VirtualMachineScaleSets \
+              --vnet-subnet-id $SubnetId \
+              --workspace-resource-id $WSID \              
