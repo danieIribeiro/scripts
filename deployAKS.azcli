@@ -5,10 +5,6 @@ az identity list --query "[].{Name:name, Id:id, Location:location}" -o table
 ManIdtobjID=<ManagedIdentity-object-ID>
 ManIdtrscID=<ManagedIdentity-Resource-ID>
 
-## Delegate Network Contributor role to the Virtual Network and Route Table
-VNID=$(az network vnet show --resource-group $RGvnet --name $VNET_NAME --query "id" -o tsv)
-az role assignment create --assignee-object-id $ManIdtobjID --scope $VNID --role 'Network Contributor'
-
 ## Create Azure AD Group - This group is needed as admin group for the cluster to grant cluster admin permissions. You can use an existing Azure AD group, or create a new one. Record the object ID of your Azure AD group.
 ### Create an Azure AD group
 az ad group create --display-name "${AKSname}-adms" --mail-nickname "${AKSname}-adms"
@@ -17,6 +13,10 @@ az ad group create --display-name "${AKSname}-adms" --mail-nickname "${AKSname}-
 az ad group list --filter "displayname eq "${AKSname}-adms"" -o table
 
 AADgroupID="AAD Group AKS Admins object ID"
+
+## Delegate Network Contributor role to the Virtual Network and Route Table
+VNID=$(az network vnet show --resource-group $RGvnet --name $VNET_NAME --query "id" -o tsv)
+az role assignment create --assignee-object-id $ManIdtobjID --scope $VNID --role 'Network Contributor'
 
 RTID=$(az network route-table show --resource-group $RGvnet -n $ROUTE_TABLE_NAME --query id -o tsv)
 az role assignment create --assignee-object-id $ManIdtobjID --scope $RTID --role "Network Contributor"
