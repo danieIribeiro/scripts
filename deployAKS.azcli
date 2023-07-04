@@ -1,4 +1,3 @@
-çpl
 ## Create a Managed Identity
 az identity create --name "${AKSname}-msi" --resource-group $RGname
 az identity list --query "[].{Name:name, Id:id, Location:location}" -o table
