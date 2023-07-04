@@ -1,4 +1,4 @@
-
+çpl
 ## Create a Managed Identity
 az identity create --name "${AKSname}-msi" --resource-group $RGname
 az identity list --query "[].{Name:name, Id:id, Location:location}" -o table
@@ -6,9 +6,6 @@ az identity list --query "[].{Name:name, Id:id, Location:location}" -o table
 ## Delegate Network Contributor role to the Virtual Network and Route Table
 VNID=$(az network vnet show --resource-group $RGvnet --name $VNET_NAME --query "id" -o tsv)
 az role assignment create --assignee-object-id $ManIdtobjID --scope $VNID --role 'Network Contributor'
-
-RTID=$(az network route-table show --resource-group $RGvnet -n $ROUTE_TABLE_NAME --query id -o tsv)
-az role assignment create --assignee-object-id $ManIdtobjID --scope $RTID --role "Network Contributor"
 
 ManIdtobjID=<ManagedIdentity-object-ID>
 ManIdtrscID=<ManagedIdentity-Resource-ID>
