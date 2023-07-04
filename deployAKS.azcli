@@ -18,10 +18,6 @@ az ad group list --filter "displayname eq "${AKSname}-adms"" -o table
 
 AADgroupID="AAD Group AKS Admins object ID"
 
-## Delegate Network Contributor role to the Virtual Network and Route Table
-VNID=$(az network vnet show --resource-group $RGvnet --name $VNET_NAME --query "id" -o tsv)
-az role assignment create --assignee-object-id $ManIdtobjID --scope $VNID --role 'Network Contributor'
-
 RTID=$(az network route-table show --resource-group $RGvnet -n $ROUTE_TABLE_NAME --query id -o tsv)
 az role assignment create --assignee-object-id $ManIdtobjID --scope $RTID --role "Network Contributor"
 
