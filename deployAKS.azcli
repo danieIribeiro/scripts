@@ -2,12 +2,12 @@
 az identity create --name "${AKSname}-msi" --resource-group $RGname
 az identity list --query "[].{Name:name, Id:id, Location:location}" -o table
 
+ManIdtobjID=<ManagedIdentity-object-ID>
+ManIdtrscID=<ManagedIdentity-Resource-ID>
+
 ## Delegate Network Contributor role to the Virtual Network and Route Table
 VNID=$(az network vnet show --resource-group $RGvnet --name $VNET_NAME --query "id" -o tsv)
 az role assignment create --assignee-object-id $ManIdtobjID --scope $VNID --role 'Network Contributor'
-
-ManIdtobjID=<ManagedIdentity-object-ID>
-ManIdtrscID=<ManagedIdentity-Resource-ID>
 
 ## Create Azure AD Group - This group is needed as admin group for the cluster to grant cluster admin permissions. You can use an existing Azure AD group, or create a new one. Record the object ID of your Azure AD group.
 ### Create an Azure AD group
