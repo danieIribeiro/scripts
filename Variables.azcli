@@ -1,0 +1,25 @@
+AKSname="NAME"                  # AKS Cluster name
+DNSname="aksbraprd001"          # AKS Cluster DNS name, max 12 characters
+LOC="brazilsouth"               # AKS Cluster Location
+RGname="RG-NAME"                # AKS Cluster Resource Group
+AKSversion=1.25.6               # AKS Cluster release version
+
+NodePoolName01="npsvcsys01"      # AKS Nodepool System name, max 12 characters
+NodeMinCount01=3                 # AKS Nodepool System Minimum count
+NodeCount01=3                    # AKS Nodepool System count
+NodeMaxCount01=5                 # AKS Nodepool System Maximum count
+MaxPODs01=40                     # AKS Nodepool System Max PODs per Worker
+NodeVmSize01='Standard_DS2_v2'   # AKS Nodepool System VM Size
+NodeOsDiskSize01=255             # AKS Nodepool System VM Disk Size
+
+RGvnet=""                        # Azure Virtual Network Resource Group name
+VNET_NAME=""                     # Azure Virtual Network name
+ROUTE_TABLE_NAME=""              # Route Table Name
+AKSSUBNET_NAME=""                # Azure Subnet name
+SubnetId="/subscriptions/xxxxxxxx-xxxxxxxxx-7fe0a7821369/resourceGroups/RG-NAME/providers/Microsoft.Network/virtualNetworks/k8s-vnet-BR/subnets/Nodes01"   # Azure Subnet Resource ID
+WSID="/subscriptions/xxxxxxxx-82aa-4faa-XXXXXX-xxxxxxx/resourcegroups/RG-NAME/providers/microsoft.operationalinsights/workspaces/name"   # Azure Log Analytics Workspace Resource ID
+AADtenatId="xxxxxxxx-86f1-41af-91ab-xxxxxxx"   # Azure AD Tenant ID
+AttachAcr01="ACRName"       # Azure Container Registry name
+
+
+
